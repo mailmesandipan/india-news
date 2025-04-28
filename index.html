@@ -2,100 +2,111 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Top 20 India News - Live Updates</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Top 20 News in the US</title>
   <style>
     body {
-      font-family: 'Arial', sans-serif;
+      font-family: Arial, sans-serif;
       margin: 0;
-      padding: 20px;
-      background: #f9f9f9;
-      color: #222;
+      padding: 0;
+      background-color: #f4f4f4;
     }
-    h1 {
+    header {
+      background-color: #333;
+      color: white;
+      padding: 20px;
       text-align: center;
-      margin-bottom: 30px;
-      font-size: 2rem;
+    }
+    main {
+      margin: 20px;
     }
     .news-container {
-      max-width: 900px;
-      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
     }
     .news-item {
-      background: #fff;
-      margin-bottom: 20px;
-      padding: 20px;
+      background-color: #fff;
       border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-      transition: transform 0.2s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: 15px;
+      width: 100%;
+      max-width: 400px;
     }
-    .news-item:hover {
-      transform: scale(1.02);
-    }
-    .news-title {
-      font-size: 1.2rem;
+    .news-item h2 {
+      font-size: 1.2em;
       margin-bottom: 10px;
-      color: #0077cc;
+    }
+    .news-item p {
+      font-size: 1em;
+      margin-bottom: 10px;
+    }
+    .news-item a {
+      font-size: 0.9em;
+      color: #007bff;
       text-decoration: none;
     }
-    .news-title:hover {
+    .news-item a:hover {
       text-decoration: underline;
     }
-    .news-summary {
-      font-size: 0.95rem;
+    .loading {
+      text-align: center;
+      font-size: 1.2em;
       color: #555;
-      margin-bottom: 10px;
-    }
-    .news-source {
-      font-size: 0.8rem;
-      color: #999;
-      text-align: right;
     }
   </style>
 </head>
 <body>
 
-  <h1>📰 Top 20 India News</h1>
-  <div class="news-container" id="news-container">
-    Loading latest news...
-  </div>
+  <header>
+    <h1>Top 20 News in the US</h1>
+  </header>
+
+  <main>
+    <div id="news-container" class="news-container">
+      <div class="loading">Loading news...</div>
+    </div>
+  </main>
 
   <script>
-    const API_KEY = '4969d33176624f538b79ff657d1f2ab9'; // Your API key
-    const newsContainer = document.getElementById('news-container');
+    const apiKey = '4969d33176624f538b79ff657d1f2ab9'; // Your News API key
+    const url = `https://newsapi.org/v2/top-headlines?country=us&apiKey=${apiKey}`;
 
+    // Function to fetch and display news
     async function fetchNews() {
       try {
-        const response = await fetch(`https://newsapi.org/v2/top-headlines?country=us&pageSize=20&apiKey=${API_KEY}`);
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch data from NewsAPI');
-        }
-        
+        const response = await fetch(url);
         const data = await response.json();
-        if (data.articles && data.articles.length > 0) {
-          newsContainer.innerHTML = '';
-          data.articles.forEach(article => {
+
+        if (data.status === 'ok' && data.articles.length > 0) {
+          const newsContainer = document.getElementById('news-container');
+          newsContainer.innerHTML = ''; // Clear loading text
+
+          data.articles.slice(0, 20).forEach(article => {
             const newsItem = document.createElement('div');
-            newsItem.className = 'news-item';
+            newsItem.classList.add('news-item');
             newsItem.innerHTML = `
-              <a href="${article.url}" target="_blank" class="news-title">${article.title}</a>
-              <div class="news-summary">${article.description ? article.description : 'No summary available.'}</div>
-              <div class="news-source">Source: ${article.source.name}</div>
+              <h2>${article.title}</h2>
+              <p>${article.description || 'No description available.'}</p>
+              <a href="${article.url}" target="_blank">Read more</a>
+              <p><strong>Source:</strong> ${article.source.name}</p>
             `;
             newsContainer.appendChild(newsItem);
           });
         } else {
-          newsContainer.innerHTML = 'No news available at the moment.';
+          document.getElementById('news-container').innerHTML = 'No news found or error fetching data.';
         }
       } catch (error) {
+        document.getElementById('news-container').innerHTML = 'Failed to load news. Please try again later.';
         console.error('Error fetching news:', error);
-        newsContainer.innerHTML = 'Failed to load news. Please try again later.';
       }
     }
 
-    fetchNews();
-    setInterval(fetchNews, 1800000); // Refresh every 30 minutes
+    // Fetch news when page loads
+    window.onload = fetchNews;
+
+    // Refresh news every 30 minutes (1800000 ms)
+    setInterval(fetchNews, 1800000);
   </script>
 
 </body>

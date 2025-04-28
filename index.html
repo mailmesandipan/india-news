@@ -67,6 +67,11 @@
     async function fetchNews() {
       try {
         const response = await fetch(`https://newsapi.org/v2/top-headlines?country=in&pageSize=20&apiKey=${API_KEY}`);
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch data from NewsAPI');
+        }
+        
         const data = await response.json();
         if (data.articles && data.articles.length > 0) {
           newsContainer.innerHTML = '';
@@ -84,8 +89,8 @@
           newsContainer.innerHTML = 'No news available at the moment.';
         }
       } catch (error) {
+        console.error('Error fetching news:', error);
         newsContainer.innerHTML = 'Failed to load news. Please try again later.';
-        console.error(error);
       }
     }
 
